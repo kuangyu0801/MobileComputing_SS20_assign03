@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "152931139219",
+    "firebase_url": "https://city-temperature-16989.firebaseio.com",
+    "project_id": "city-temperature-16989",
+    "storage_bucket": "city-temperature-16989.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152931139219:android:5a798aedf2c29106811766",
+        "android_client_info": {
+          "package_name": "de.uni_s.ipvs.mcl.assignment3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "152931139219-b2m9gs2236i7kk21acij1h7irr7vb44v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8mVmqf93Cg8BQi5uiROiZlrzJPL6x-ow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "152931139219-b2m9gs2236i7kk21acij1h7irr7vb44v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
