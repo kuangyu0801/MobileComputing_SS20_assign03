@@ -12,6 +12,7 @@
 
 ## 實作
 - 先用自己的firebase開發，完成之後再改用助教的
+- 每個人先在自己的feature branch上面開發, 最後我再幫大家merge到master
 
 ## Firebase使用
 [Add Firebase to your Android project](https://firebase.google.com/docs/android/setup)
