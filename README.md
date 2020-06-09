@@ -1,5 +1,20 @@
 # MobileComputing_SS20_assign03
 
+# Task01
+- 1.1: Write to Database:
+- 1.2: Read from Database
+
+## Design
+兩個按鍵、read, write, 一個City text input 一個city temperature in/out
+
+# Task02
+- 2.1: Continuously display the latest temperature value of a city
+- 2.2: Show todays average from one location
+
+## Design
+get the full list of cities
+using listener callback
+
 ## 需掌握知識點
 - Firebase使用
 - JSON format
