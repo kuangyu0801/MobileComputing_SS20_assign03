@@ -7,8 +7,8 @@
 - Firebase in a Weekend on Udacity
 
 ## 問題
-- 要怎麼建立database
-- 我要怎麼在後台看到Realtime Database的資料
+- 要怎麼建立database:進到console裡面->選database(for debugging choose "test")
+- 我要怎麼在後台看到Realtime Database的資料:進到console裡面->選database->選data
 - 要如何取的root directory
 
 ## 實作
@@ -19,7 +19,7 @@
 [Add Firebase to your Android project](https://firebase.google.com/docs/android/setup)
 
 [Choose a Database: Cloud Firestore or Realtime Database](https://firebase.google.com/docs/database/rtdb-vs-firestore#writes_and_transactions)
-
+[Readtime Database Intro](https://firebase.google.com/products/realtime-database/?authuser=0)
 ## JSON架構
 
 ## How to Use JSON on Firebase
