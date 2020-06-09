@@ -7,7 +7,7 @@
 
 ## 問題
 - 我要怎麼在後台看到Realtime Database的資料
-
+- 要如何取的root directory
 
 
 ## Firebase使用
@@ -15,7 +15,7 @@
 
 [Choose a Database: Cloud Firestore or Realtime Database](https://firebase.google.com/docs/database/rtdb-vs-firestore#writes_and_transactions)
 
-## JSON背景
+## JSON架構
 
 ## How to Use JSON on Firebase
 
