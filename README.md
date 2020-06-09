@@ -1,4 +1,5 @@
 # MobileComputing_SS20_assign03
+
 ## 需掌握知識點
 - Firebase使用
 - JSON format
@@ -9,6 +10,8 @@
 - 我要怎麼在後台看到Realtime Database的資料
 - 要如何取的root directory
 
+## 實作
+- 先用自己的firebase開發，完成之後再改用助教的
 
 ## Firebase使用
 [Add Firebase to your Android project](https://firebase.google.com/docs/android/setup)
