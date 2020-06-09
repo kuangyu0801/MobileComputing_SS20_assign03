@@ -7,6 +7,7 @@
 - Firebase in a Weekend on Udacity
 
 ## 問題
+- 要怎麼建立database
 - 我要怎麼在後台看到Realtime Database的資料
 - 要如何取的root directory
 
