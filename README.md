@@ -49,12 +49,9 @@ NoSQL: semi-structured database: can store first then categrorize later
 SQL is a structured database: data need to fit into the predifined structure in order to be stored
 
 # How to create your own git feature branch?
-- 建立branch
-$ git branch <branchname>
-- 查看branch列表
-$ git branch
-- 想在自己的branch進行提交，要先切換到自己的branch
-$ git checkout <yourbranch>
-- 如果想要同時建立然後切換到該branch
-$ git branch -b <branchname>
-- 切換到自己的branch之後就可以開始add, commit, push
+- 建立local branch go to menu bar click "VCS" -> "Git" -> "Branches" -> "create branch"
+- 建立remote branch: push 之後就會自動建立 remote branch
+- 如何merge changes?  "VCS" -> "Git" -> "Merge Changes" 詳情參考
+[JetBrain文章](https://www.jetbrains.com/help/idea/apply-changes-from-one-branch-to-another.html)
+[Youtube教學How and when do I merge or rebase?](https://youtu.be/Nftif2ynvdA)
+
