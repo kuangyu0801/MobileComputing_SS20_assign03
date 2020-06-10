@@ -32,14 +32,29 @@ using listener callback
 
 ## Firebase使用
 [Add Firebase to your Android project](https://firebase.google.com/docs/android/setup)
+[Video of Adding Firebase to Android Studio](https://www.youtube.com/watch?v=9qe_A3F-_f0)
 
 [Choose a Database: Cloud Firestore or Realtime Database](https://firebase.google.com/docs/database/rtdb-vs-firestore#writes_and_transactions)
 [Readtime Database Intro](https://firebase.google.com/products/realtime-database/?authuser=0)
+
 ## JSON架構
 
 ## How to Use JSON on Firebase
-
+- All Firebase Realtime Database data is stored as JSON objects.
+[Structure Your Database](https://firebase.google.com/docs/database/web/structure-data)
+- console -> three dor at right -> Import JSON
 ## NoSQL
 [What is NoSQL?](https://www.youtube.com/watch?v=BgQFJ_UNIgw)
 NoSQL: semi-structured database: can store first then categrorize later
 SQL is a structured database: data need to fit into the predifined structure in order to be stored
+
+# How to create your own git feature branch?
+- 建立branch
+$ git branch <branchname>
+- 查看branch列表
+$ git branch
+- 想在自己的branch進行提交，要先切換到自己的branch
+$ git checkout <yourbranch>
+- 如果想要同時建立然後切換到該branch
+$ git branch -b <branchname>
+- 切換到自己的branch之後就可以開始add, commit, push
