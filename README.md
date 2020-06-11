@@ -25,6 +25,7 @@ using listener callback
 - 要怎麼建立database:進到console裡面->選database(for debugging choose "test")
 - 我要怎麼在後台看到Realtime Database的資料:進到console裡面->選database->選data
 - 要如何取的root directory
+- 获取某个节点的值，只能用监听事件吗？
 
 ## 實作
 - 先用自己的firebase開發，完成之後再改用助教的
