@@ -4,14 +4,14 @@
 - 1.1: Write to Database:
 - 1.2: Read from Database
 
-## Design
+### Design
 兩個按鍵、read, write, 一個City text input 一個city temperature in/out
 
 # Task02
 - 2.1: Continuously display the latest temperature value of a city
 - 2.2: Show todays average from one location
 
-## Design
+### Design
 get the full list of cities
 using listener callback
 
