@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     final private static String TAG = MainActivity.class.getCanonicalName();
     private static String PATH =  "http://api.openweathermap.org/data/2.5/weather?q=";
-    String APIKEY = "1e83ffabaf397f346a91ccd92b796694";
-    int TEAM_NUMBER = 8;
+    private static String APIKEY = "1e83ffabaf397f346a91ccd92b796694";
+    private static int TEAM_NUMBER = 8;
 
     TextView tv_city, tv_temp;
     EditText edt_writeCity, edt_readCity;
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String[] result = {params[0],Integer.toString(temperature)};
+            String[] result = {params[0],Integer.toString(temperature)}; // city, temperature
             return result;
         }
 
@@ -155,35 +155,45 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG,"write to realtime database");
         tv_city.setText("write city:   "+ city);
         tv_temp.setText("write temperature:   "+ temperature);
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("teams/"+TEAM_NUMBER);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String date = sdf.format(new Date());
-        myRef.child("location/"+city+"/"+date).child(""+System.currentTimeMillis()).setValue(Integer.valueOf(temperature));
+        DatabaseReference myRef = FirebaseDatabase.getInstance()
+                .getReference("/teams/"+TEAM_NUMBER+"/location/"+city+"/"+date+"/"+System.currentTimeMillis());
+        myRef.setValue(Integer.valueOf(temperature));
     }
 
     public void readFromDatabase(String readCity){
         Log.i(TAG,"read from realtime database");
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("/teams/8/location/"+readCity);
-        myRef.orderByValue().limitToLast(1).addChildEventListener(new ChildEventListener() {
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("/teams/"+TEAM_NUMBER+"/location/"+readCity);
+        // get the latest date
+        myRef.orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.i(TAG,"The key is:"+ dataSnapshot.getKey()+"\nThe Value is:"+dataSnapshot.getValue());
                 long bigMillis = 0;
                 int latestTemp = 0;
+                float sum = 0;
+                int updateNum = 0;
+                int averageTemp = 0;
                 for(DataSnapshot dayTemp : dataSnapshot.getChildren()){
-                    String keyMillis = dayTemp.getKey();
-                    Long currentMillis = Long.parseLong(keyMillis);
-                    Log.i(TAG, "Integer Millis is:"+currentMillis);
+                    // calculate average temperature of the day
+                    int currentTemp = dayTemp.getValue(Integer.class);
+                    sum += currentTemp;
+                    updateNum++;
+                    averageTemp = Math.round(sum/updateNum);
+
+                    Long currentMillis = Long.parseLong(dayTemp.getKey());//get Millis
+                    Log.i(TAG, "current Millis is:"+currentMillis);
                     if (currentMillis>bigMillis){
                         bigMillis = currentMillis;
-                        latestTemp = dayTemp.getValue(Integer.class);
+                        latestTemp = currentTemp;//get latest temperature
                     }
                 }
                 Log.i(TAG,"the last update is:"+bigMillis+"\nthe temperature is:"+latestTemp);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String date = sdf.format(new Date(bigMillis));
-                tv_city.setText("read time:   "+ date);
-                tv_temp.setText("read temperature:   "+ latestTemp);
+                tv_city.setText("read time:   "+ date + "\nMillis:   "+bigMillis);
+                tv_temp.setText("read temperature:   "+ latestTemp +"\naverage temperature:  "+averageTemp);
 
             }
 
@@ -204,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.w(TAG, "Fail to read value", databaseError.toException());
             }
         });
     }
@@ -214,5 +224,6 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
     }
+
 
 }
