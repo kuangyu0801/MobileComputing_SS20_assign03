@@ -1,6 +1,7 @@
 package de.uni_s.ipvs.mcl.assignment3;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,10 +33,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText mTemperatureEditText;
     private Button mSendButton;
     private Button mGetButton;
-    private Button mPrevButton;
+    private Button mSubscribeButton;
     private TextView mLocationTextView;
     private TextView mTemperatureTextView;
     private TextView mLastUpdateTimeTextView;
+    private TextView mSubsLocationTextView;
+    private TextView mSubsTemperatureTextView;
 
     private String lastLocation;
     private String lastDate;
@@ -42,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
 
     // Firebase instance variables
     private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mMessagesDatabaseReference;
-    private ValueEventListener mValueEventListener;
+    private DatabaseReference mTemperatureDatabaseReference;
+    private DatabaseReference mSubscribeTemperatureDatabaseReference;
+    private ChildEventListener mChildEventListener;
 
 
     @Override
@@ -55,17 +60,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("location");
+        mTemperatureDatabaseReference = mFirebaseDatabase.getReference().child("location");
 
         // Initialize references to views
         mSendButton = (Button) findViewById(R.id.sendButton);
         mGetButton = (Button) findViewById(R.id.getButton);
-        mPrevButton = (Button) findViewById(R.id.prevButton);
+        mSubscribeButton = (Button) findViewById(R.id.subscribeButton);
         mLocationEditText = (EditText) findViewById(R.id.locationEditText);
         mTemperatureEditText = (EditText) findViewById(R.id.temperatureEditText);
         mLocationTextView = (TextView) findViewById(R.id.locationTextView);
         mTemperatureTextView = (TextView) findViewById(R.id.temperatureTextView);
         mLastUpdateTimeTextView = (TextView) findViewById(R.id.lastUpdateTextView);
+        mSubsLocationTextView = (TextView) findViewById(R.id.subLocationTextView);
+        mSubsTemperatureTextView = (TextView) findViewById(R.id.subsTempTextView);
 
         // Enable Send button when there's text to send
         mLocationEditText.addTextChangedListener(new TextWatcher() {
@@ -97,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 lastLocation = mLocationEditText.getText().toString();
-                DatabaseReference getNode = mMessagesDatabaseReference.child(lastLocation);
+                DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
 
                 // read from data base only once
                 getNode.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -119,8 +126,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
+
                     @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {}
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
                 });
             }
         });
@@ -133,26 +142,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: Send messages on click
-
-                Integer temperatureInt= Integer.parseInt(mTemperatureEditText.getText().toString());
+                Integer temperatureInt = Integer.parseInt(mTemperatureEditText.getText().toString());
                 lastLocation = mLocationEditText.getText().toString();
                 lastDate = LocalDate.now().toString();
                 Long timestamp = new Long(System.currentTimeMillis());
                 String millis = timestamp.toString();
                 Log.i(TAG, lastDate);
                 Log.i(TAG, lastLocation);
-                DatabaseReference node = mMessagesDatabaseReference.child(lastLocation).child(lastDate);
+                DatabaseReference node = mTemperatureDatabaseReference.child(lastLocation).child(lastDate);
                 node.child(millis).setValue(temperatureInt)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(MainActivity.this,"Temperature successfully updated", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Temperature successfully updated", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(MainActivity.this,"Temperature update failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Temperature update failed", Toast.LENGTH_SHORT).show();
                             }
                         });
 
@@ -164,37 +172,81 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: Task 2.1
         /**
-        * Continuously display the latest temperature value of a city
+         * Continuously display the latest temperature value of a city
          * */
+
+
+
+        mSubscribeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lastLocation = mLocationEditText.getText().toString();
+                mSubscribeTemperatureDatabaseReference = mTemperatureDatabaseReference.child(lastLocation);
+                Log.i(TAG, "subscribed button clicked");
+                mChildEventListener = new ChildEventListener() {
+
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        Log.i(TAG, "child added");
+                        Iterator<DataSnapshot> millisIterator = dataSnapshot.getChildren().iterator();
+                        DataSnapshot latestMillis = null;
+                        while (millisIterator.hasNext()) {
+                            latestMillis = millisIterator.next();
+                        }
+                        if (latestMillis != null) {
+                            Integer latestTemperature = latestMillis.getValue(Integer.class);
+                            String latestTime = millisTimeConvert(latestMillis.getKey());
+                            mSubsLocationTextView.setText(lastLocation);
+                            mSubsTemperatureTextView.setText(latestTemperature.toString()+ "\n" + latestTime);
+                        } else {
+                            Log.i(TAG, "latestMillis is null");
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                        Log.i(TAG, "child changed");
+                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
+                        if (latestDate != null) {
+                            Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
+                            DataSnapshot latestMillis = null;
+                            while (millisIterator.hasNext()) {
+                                latestMillis = millisIterator.next();
+                            }
+                            if (latestMillis != null) {
+                                Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                String latestTime = millisTimeConvert(latestMillis.getKey());
+                                mSubsLocationTextView.setText(lastLocation);
+                                mSubsTemperatureTextView.setText(latestTemperature.toString()+ "\n" + latestTime);
+                            } else {
+                                Log.i(TAG, "latestMillis is null");
+                            }
+                        } else {
+                            Log.i(TAG, "latestDate is null");
+                        }
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {}
+                };
+
+                mSubscribeTemperatureDatabaseReference.addChildEventListener(mChildEventListener);
+            }
+        });
 
         // TODO: Task 2.2
         /**
          * Show todays average from one location
          * */
 
-        // TODO: read from database
-/*        mValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Integer getTemperature = dataSnapshot.getValue(Integer.class);
-
-                DatabaseReference node = dataSnapshot.getRef();
-
-                String getLocation = node.getParent().getParent().toString();
-
-                mTemperatureTextView.setText(getTemperature);
-                mLocationTextView.setText(getLocation);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        mMessagesDatabaseReference.addValueEventListener(mValueEventListener);*/
-
     }
-
     @Override
     protected void onDestroy() {
         Log.i(TAG, "Activity destroyed");
