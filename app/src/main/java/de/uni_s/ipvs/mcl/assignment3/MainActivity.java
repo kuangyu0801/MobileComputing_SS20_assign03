@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mMessagesDatabaseReference = mFirebaseDatabase.getReference("message");
+        mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("location");
 
         // Initialize references to views
         mSendButton = (Button) findViewById(R.id.sendButton);

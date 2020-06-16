@@ -2,13 +2,13 @@
 
 # Task01
 - 1.1: Write to Database:
-- 1.2: Read from Database
+- 1.2: Read from Database: using onSuccess call back or just normal listener
 
 ### Design
 兩個按鍵、read, write, 一個City text input 一個city temperature in/out
 
 # Task02
-- 2.1: Continuously display the latest temperature value of a city
+- 2.1: Continuously display the latest temperature value of a city: choose a city(do it with drop down or textEdit)
 - 2.2: Show todays average from one location
 
 ### Design
@@ -22,10 +22,11 @@ using listener callback
 - Firebase in a Weekend on Udacity
 
 ## 問題
-- 要怎麼建立database:進到console裡面->選database(for debugging choose "test")
-- 我要怎麼在後台看到Realtime Database的資料:進到console裡面->選database->選data
+- Done 要怎麼建立database:進到console裡面->選database(for debugging choose "test")
+- Done 我要怎麼在後台看到Realtime Database的資料:進到console裡面->選database->選data
 - 要如何取的root directory
 - 获取某个节点的值，只能用监听事件吗？
+- Double truncate
 
 ## 實作
 - 先用自己的firebase開發，完成之後再改用助教的
