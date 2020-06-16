@@ -3,5 +3,6 @@
     <string name="task_name">assign03_task01</string>
     <string name="str_temperature">Temperature</string>
     <string name="str_city">City</string>
+    <string name="str_location">Location</string>
     <string name="str_send">Send</string>
 </resources>

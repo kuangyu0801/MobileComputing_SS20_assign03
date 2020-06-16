@@ -7,6 +7,9 @@
 ### Design
 兩個按鍵、read, write, 一個City text input 一個city temperature in/out
 
+read from data base "This method is triggered once when the listener is attached and again every time the data, including children, changes. "
+
+
 # Task02
 - 2.1: Continuously display the latest temperature value of a city: choose a city(do it with drop down or textEdit)
 - 2.2: Show todays average from one location
@@ -26,7 +29,7 @@ using listener callback
 - Done 我要怎麼在後台看到Realtime Database的資料:進到console裡面->選database->選data
 - 要如何取的root directory
 - 获取某个节点的值，只能用监听事件吗？
-- Double truncate
+- No Need Double truncate
 
 ## 實作
 - 先用自己的firebase開發，完成之後再改用助教的
