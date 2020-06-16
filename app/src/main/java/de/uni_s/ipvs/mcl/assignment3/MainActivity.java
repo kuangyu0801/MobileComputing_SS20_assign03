@@ -22,6 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
+import java.util.Date;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
     final private static String TAG = MainActivity.class.getCanonicalName();
@@ -29,8 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText mTemperatureEditText;
     private Button mSendButton;
     private Button mGetButton;
+    private Button mPrevButton;
     private TextView mLocationTextView;
     private TextView mTemperatureTextView;
+    private TextView mLastUpdateTimeTextView;
 
     private String lastLocation;
     private String lastDate;
@@ -56,11 +60,12 @@ public class MainActivity extends AppCompatActivity {
         // Initialize references to views
         mSendButton = (Button) findViewById(R.id.sendButton);
         mGetButton = (Button) findViewById(R.id.getButton);
+        mPrevButton = (Button) findViewById(R.id.prevButton);
         mLocationEditText = (EditText) findViewById(R.id.locationEditText);
         mTemperatureEditText = (EditText) findViewById(R.id.temperatureEditText);
         mLocationTextView = (TextView) findViewById(R.id.locationTextView);
         mTemperatureTextView = (TextView) findViewById(R.id.temperatureTextView);
-
+        mLastUpdateTimeTextView = (TextView) findViewById(R.id.lastUpdateTextView);
 
         // Enable Send button when there's text to send
         mLocationEditText.addTextChangedListener(new TextWatcher() {
@@ -84,7 +89,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Send button sends a message and clears the EditText
+        // DONE: Task1.2
+        /**
+         * Read Previous value from one city, identified by the city name
+         * */
+        mGetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lastLocation = mLocationEditText.getText().toString();
+                DatabaseReference getNode = mMessagesDatabaseReference.child(lastLocation);
+
+                // read from data base only once
+                getNode.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
+                        if (latestDate != null) {
+                            Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
+                            DataSnapshot latestMillis = null;
+                            while (millisIterator.hasNext()) {
+                                latestMillis = millisIterator.next();
+                            }
+                            if (latestMillis != null) {
+                                String latestTime = millisTimeConvert(latestMillis.getKey());
+                                Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                mLocationTextView.setText(lastLocation);
+                                mTemperatureTextView.setText(latestTemperature.toString());
+                                mLastUpdateTimeTextView.setText(latestTime);
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {}
+                });
+            }
+        });
+
+        // DONE: Task1.1
+        /**
+         * Add the new value to the database
+         * */
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, lastDate);
                 Log.i(TAG, lastLocation);
                 DatabaseReference node = mMessagesDatabaseReference.child(lastLocation).child(lastDate);
-                //mMessagesDatabaseReference.child(location).push().setValue(temperatureDouble);
                 node.child(millis).setValue(temperatureInt)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -119,30 +162,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // read from data base once
-        mGetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                lastLocation = mLocationEditText.getText().toString();
-                DatabaseReference getNode = mMessagesDatabaseReference.child(lastLocation);
-                getNode.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
-                        DataSnapshot latestMillis = latestDate.getChildren().iterator().next();
-                        Integer latestTemperature = latestMillis.getValue(Integer.class);
-                        mLocationTextView.setText(lastLocation);
-                        Log.i(TAG, latestTemperature.toString());
-                        mTemperatureTextView.setText(latestTemperature.toString());
-                    }
+        // TODO: Task 2.1
+        /**
+        * Continuously display the latest temperature value of a city
+         * */
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-        });
+        // TODO: Task 2.2
+        /**
+         * Show todays average from one location
+         * */
 
         // TODO: read from database
 /*        mValueEventListener = new ValueEventListener() {
@@ -171,5 +199,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.i(TAG, "Activity destroyed");
         super.onDestroy();
+    }
+
+    private String millisTimeConvert(String millisStr) {
+        Long milliseconds = Long.parseLong(millisStr);
+        Date date = new Date(milliseconds);
+        return date.toString();
     }
 }
