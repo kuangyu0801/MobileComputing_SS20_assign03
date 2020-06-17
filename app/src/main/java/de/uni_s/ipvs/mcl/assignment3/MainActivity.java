@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String lastLocation;
     private String lastDate;
+    private Boolean isExist;
 
 
     // Firebase instance variables
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mTemperatureDatabaseReference = mFirebaseDatabase.getReference().child("location");
-
+        isExist = new Boolean(false);
         // Initialize references to views
         mSendButton = (Button) findViewById(R.id.sendButton);
         mGetButton = (Button) findViewById(R.id.getButton);
@@ -314,12 +315,20 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkLocationExistance(String location) {
         final String lookupLocation = location;
-        final boolean[] isExist = new boolean[1];
+        isExist = false;
 
         mTemperatureDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                isExist[0] = dataSnapshot.hasChild(lookupLocation);
+                Iterator<DataSnapshot> locationIterator = dataSnapshot.getChildren().iterator();
+                while (locationIterator.hasNext()) {
+                    DataSnapshot latestLocation = locationIterator.next();
+                    Log.i(TAG, "iterating location: " + latestLocation.getKey());
+                    isExist  = (lookupLocation.equals(latestLocation.getKey()));
+                    if (isExist) {
+                        break;
+                    }
+                }
             }
 
             @Override
@@ -327,9 +336,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        if (!isExist[0]) {
+        if (!isExist) {
             Toast.makeText(MainActivity.this, "This location doesn't exist in database", Toast.LENGTH_SHORT).show();
         }
-        return isExist[0];
+        return isExist;
     }
 }
