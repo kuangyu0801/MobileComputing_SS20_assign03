@@ -34,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
     private Button mSendButton;
     private Button mGetButton;
     private Button mSubscribeButton;
+    private Button mAverageButton;
     private TextView mLocationTextView;
     private TextView mTemperatureTextView;
     private TextView mLastUpdateTimeTextView;
     private TextView mSubsLocationTextView;
     private TextView mSubsTemperatureTextView;
+    private TextView mAverageTemperatureTextView;
 
     private String lastLocation;
     private String lastDate;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mSendButton = (Button) findViewById(R.id.sendButton);
         mGetButton = (Button) findViewById(R.id.getButton);
         mSubscribeButton = (Button) findViewById(R.id.subscribeButton);
+        mAverageButton = (Button) findViewById(R.id.getAverageButton);
         mLocationEditText = (EditText) findViewById(R.id.locationEditText);
         mTemperatureEditText = (EditText) findViewById(R.id.temperatureEditText);
         mLocationTextView = (TextView) findViewById(R.id.locationTextView);
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         mLastUpdateTimeTextView = (TextView) findViewById(R.id.lastUpdateTextView);
         mSubsLocationTextView = (TextView) findViewById(R.id.subLocationTextView);
         mSubsTemperatureTextView = (TextView) findViewById(R.id.subsTempTextView);
+        mAverageTemperatureTextView = (TextView) findViewById(R.id.avgTextView);
 
         // Enable Send button when there's text to send
         mLocationEditText.addTextChangedListener(new TextWatcher() {
@@ -85,9 +89,11 @@ public class MainActivity extends AppCompatActivity {
                 if (charSequence.toString().trim().length() > 0) {
                     mSendButton.setEnabled(true);
                     mGetButton.setEnabled(true);
+                    mAverageButton.setEnabled(true);
                 } else {
                     mSendButton.setEnabled(false);
                     mGetButton.setEnabled(false);
+                    mAverageButton.setEnabled(false);
                 }
             }
 
@@ -141,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Send messages on click
+                // DONE: Send messages on click
                 Integer temperatureInt = Integer.parseInt(mTemperatureEditText.getText().toString());
                 lastLocation = mLocationEditText.getText().toString();
                 lastDate = LocalDate.now().toString();
@@ -170,12 +176,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // TODO: Task 2.1
+        // DONE: Task 2.1
         /**
          * Continuously display the latest temperature value of a city
          * */
-
-
 
         mSubscribeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -241,11 +245,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // TODO: Task 2.2
+        // DONE: Task 2.2
         /**
          * Show todays average from one location
          * */
-
+        mAverageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lastLocation = mLocationEditText.getText().toString();
+                DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
+                Log.i(TAG, "Get Average");
+                // read from data base only once
+                getNode.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
+                        if (latestDate != null) {
+                            Log.i(TAG, "latest date: " + latestDate.getKey());
+                            Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
+                            DataSnapshot latestMillis = null;
+                            long dataCount = latestDate.getChildrenCount();
+                            long temperatureSum = 0;
+                            while (millisIterator.hasNext()) {
+                                latestMillis = millisIterator.next();
+                                Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                temperatureSum += latestTemperature;
+                            }
+                            Long averageTemperature = temperatureSum / dataCount;
+                            mAverageTemperatureTextView.setText(new String(averageTemperature.toString() + " on " + latestDate.getKey()));
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+            }
+        });
     }
     @Override
     protected void onDestroy() {
