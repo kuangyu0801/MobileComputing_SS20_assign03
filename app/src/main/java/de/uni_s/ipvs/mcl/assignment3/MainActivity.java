@@ -112,36 +112,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 lastLocation = mLocationEditText.getText().toString();
-                DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
                 Log.i(TAG, "Get button clicked");
-                // read from data base only once
-                getNode.limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
-                        Log.i(TAG, "Date count:" + Long.toString(dataSnapshot.getChildrenCount()));
+                if (checkLocationExistance(lastLocation)) {
+                    DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
 
-                        if (latestDate != null) {
-                            Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
-                            DataSnapshot latestMillis = null;
-                            while (millisIterator.hasNext()) {
-                                latestMillis = millisIterator.next();
-                                Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
-                            }
-                            if (latestMillis != null) {
-                                String latestTime = millisTimeConvert(latestMillis.getKey());
-                                Integer latestTemperature = latestMillis.getValue(Integer.class);
-                                mLocationTextView.setText(lastLocation);
-                                mTemperatureTextView.setText(latestTemperature.toString());
-                                mLastUpdateTimeTextView.setText(latestTime);
+                    // read from data base only once
+                    getNode.limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
+                            Log.i(TAG, "Date count:" + Long.toString(dataSnapshot.getChildrenCount()));
+
+                            if (latestDate != null) {
+                                Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
+                                DataSnapshot latestMillis = null;
+                                while (millisIterator.hasNext()) {
+                                    latestMillis = millisIterator.next();
+                                    Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
+                                }
+                                if (latestMillis != null) {
+                                    String latestTime = millisTimeConvert(latestMillis.getKey());
+                                    Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                    mLocationTextView.setText(lastLocation);
+                                    mTemperatureTextView.setText(latestTemperature.toString());
+                                    mLastUpdateTimeTextView.setText(latestTime);
+                                }
                             }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                        }
+                    });
+                }
             }
         });
 
@@ -189,103 +192,111 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 lastLocation = mLocationEditText.getText().toString();
-                mSubscribeTemperatureDatabaseReference = mTemperatureDatabaseReference.child(lastLocation);
                 Log.i(TAG, "subscribed button clicked");
-                mChildEventListener = new ChildEventListener() {
+                if (checkLocationExistance(lastLocation)) {
+                    mSubscribeTemperatureDatabaseReference = mTemperatureDatabaseReference.child(lastLocation);
+                    mChildEventListener = new ChildEventListener() {
 
-                    @Override
-                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                        Log.i(TAG, "child added");
-                        Iterator<DataSnapshot> millisIterator = dataSnapshot.getChildren().iterator();
-                        DataSnapshot latestMillis = null;
-                        while (millisIterator.hasNext()) {
-                            latestMillis = millisIterator.next();
-                            Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                            Log.i(TAG, "child added");
+                            Iterator<DataSnapshot> millisIterator = dataSnapshot.getChildren().iterator();
+                            DataSnapshot latestMillis = null;
+                            while (millisIterator.hasNext()) {
+                                latestMillis = millisIterator.next();
+                                Log.i(TAG, "iterating on Millis:" + latestMillis.getKey());
+                            }
+                            if (latestMillis != null) {
+                                Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                String latestTime = millisTimeConvert(latestMillis.getKey());
+                                mSubsLocationTextView.setText(lastLocation);
+                                mSubsTemperatureTextView.setText(latestTemperature.toString() + "\n" + latestTime);
+                            } else {
+                                Log.i(TAG, "latestMillis is null");
+                            }
                         }
-                        if (latestMillis != null) {
-                            Integer latestTemperature = latestMillis.getValue(Integer.class);
-                            String latestTime = millisTimeConvert(latestMillis.getKey());
-                            mSubsLocationTextView.setText(lastLocation);
-                            mSubsTemperatureTextView.setText(latestTemperature.toString()+ "\n" + latestTime);
-                        } else {
-                            Log.i(TAG, "latestMillis is null");
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                            Log.i(TAG, "child changed");
+                            Iterator<DataSnapshot> millisIterator = dataSnapshot.getChildren().iterator();
+                            DataSnapshot latestMillis = null;
+                            while (millisIterator.hasNext()) {
+                                latestMillis = millisIterator.next();
+                                Log.i(TAG, "iterating on Millis:" + latestMillis.getKey());
+                            }
+                            if (latestMillis != null) {
+                                Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                String latestTime = millisTimeConvert(latestMillis.getKey());
+                                mSubsLocationTextView.setText(lastLocation);
+                                mSubsTemperatureTextView.setText(latestTemperature.toString() + "\n" + latestTime);
+                            } else {
+                                Log.i(TAG, "latestMillis is null");
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                        Log.i(TAG, "child changed");
-                        Iterator<DataSnapshot> millisIterator = dataSnapshot.getChildren().iterator();
-                        DataSnapshot latestMillis = null;
-                        while (millisIterator.hasNext()) {
-                            latestMillis = millisIterator.next();
-                            Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                         }
-                        if (latestMillis != null) {
-                            Integer latestTemperature = latestMillis.getValue(Integer.class);
-                            String latestTime = millisTimeConvert(latestMillis.getKey());
-                            mSubsLocationTextView.setText(lastLocation);
-                            mSubsTemperatureTextView.setText(latestTemperature.toString()+ "\n" + latestTime);
-                        } else {
-                            Log.i(TAG, "latestMillis is null");
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         }
-                    }
 
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                        }
+                    };
 
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {}
-                };
-
-                mSubscribeTemperatureDatabaseReference.addChildEventListener(mChildEventListener);
+                    mSubscribeTemperatureDatabaseReference.addChildEventListener(mChildEventListener);
+                }
             }
         });
 
         // DONE: Task 2.2
         /**
-         * Show todays average from one location
+         * Show today's average from one location
          * */
         mAverageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 lastLocation = mLocationEditText.getText().toString();
-                DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
-                Log.i(TAG, "Get Average");
-                // read from data base only once
-                getNode.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (checkLocationExistance(lastLocation)) {
+                    DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
+                    Log.i(TAG, "Get Average");
+                    // read from data base only once
+                    getNode.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        DataSnapshot latestDate = null;
-                        Iterator<DataSnapshot> dateIterator = dataSnapshot.getChildren().iterator();
-                        while(dateIterator.hasNext()) {
-                            latestDate = dateIterator.next();
-                            Log.i(TAG, "iterating date: " + latestDate.getKey());
-                        }
-                        if (latestDate != null) {
-                            Log.i(TAG, "latest date: " + latestDate.getKey());
-                            Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
-                            DataSnapshot latestMillis = null;
-                            long dataCount = latestDate.getChildrenCount();
-                            long temperatureSum = 0;
-                            while (millisIterator.hasNext()) {
-                                latestMillis = millisIterator.next();
-                                Integer latestTemperature = latestMillis.getValue(Integer.class);
-                                temperatureSum += latestTemperature;
+                            DataSnapshot latestDate = null;
+                            Iterator<DataSnapshot> dateIterator = dataSnapshot.getChildren().iterator();
+                            while (dateIterator.hasNext()) {
+                                latestDate = dateIterator.next();
+                                Log.i(TAG, "iterating date: " + latestDate.getKey());
                             }
-                            Long averageTemperature = temperatureSum / dataCount;
-                            mAverageTemperatureTextView.setText(new String(averageTemperature.toString() + "\non " + latestDate.getKey()));
+                            if (latestDate != null) {
+                                Log.i(TAG, "latest date: " + latestDate.getKey());
+                                Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
+                                DataSnapshot latestMillis = null;
+                                long dataCount = latestDate.getChildrenCount();
+                                long temperatureSum = 0;
+                                while (millisIterator.hasNext()) {
+                                    latestMillis = millisIterator.next();
+                                    Integer latestTemperature = latestMillis.getValue(Integer.class);
+                                    temperatureSum += latestTemperature;
+                                }
+                                Long averageTemperature = temperatureSum / dataCount;
+                                mAverageTemperatureTextView.setText(new String(averageTemperature.toString() + "\non " + latestDate.getKey()));
+                            }
                         }
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                        }
+                    });
+                }
             }
         });
     }
@@ -299,5 +310,26 @@ public class MainActivity extends AppCompatActivity {
         Long milliseconds = Long.parseLong(millisStr);
         Date date = new Date(milliseconds);
         return date.toString();
+    }
+
+    private boolean checkLocationExistance(String location) {
+        final String lookupLocation = location;
+        final boolean[] isExist = new boolean[1];
+
+        mTemperatureDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                isExist[0] = dataSnapshot.hasChild(lookupLocation);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        if (!isExist[0]) {
+            Toast.makeText(MainActivity.this, "This location doesn't exist in database", Toast.LENGTH_SHORT).show();
+        }
+        return isExist[0];
     }
 }
