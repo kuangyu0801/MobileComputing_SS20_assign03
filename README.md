@@ -28,7 +28,7 @@ using listener callback
 - Done 要怎麼建立database:進到console裡面->選database(for debugging choose "test")
 - Done 我要怎麼在後台看到Realtime Database的資料:進到console裡面->選database->選data
 - 要如何取的root directory
-- 获取某个节点的值，只能用监听事件吗？
+- 获取某个节点的值，只能用监听事件吗？是的，可以使用singleValueEventListener就只會讀一次
 - No Need Double truncate
 
 ## 實作
@@ -60,3 +60,8 @@ SQL is a structured database: data need to fit into the predifined structure in 
 [JetBrain文章](https://www.jetbrains.com/help/idea/apply-changes-from-one-branch-to-another.html)
 [Youtube教學How and when do I merge or rebase?](https://youtu.be/Nftif2ynvdA)
 
+
+### [ValueEventListener](https://firebase.google.com/docs/reference/android/com/google/firebase/database/ValueEventListener)
+
+### [ChildEventListener](https://firebase.google.com/docs/reference/android/com/google/firebase/database/ChildEventListener)
+ 

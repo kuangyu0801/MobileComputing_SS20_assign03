@@ -158,8 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 lastDate = LocalDate.now().toString();
                 Long timestamp = new Long(System.currentTimeMillis());
                 String millis = timestamp.toString();
-                Log.i(TAG, lastDate);
-                Log.i(TAG, lastLocation);
+                Log.i(TAG, "send clicked: " + lastDate + "," + lastLocation + "," + millis);
                 DatabaseReference node = mTemperatureDatabaseReference.child(lastLocation).child(lastDate);
                 node.child(millis).setValue(temperatureInt)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -201,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
                         DataSnapshot latestMillis = null;
                         while (millisIterator.hasNext()) {
                             latestMillis = millisIterator.next();
+                            Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
                         }
                         if (latestMillis != null) {
                             Integer latestTemperature = latestMillis.getValue(Integer.class);
@@ -216,23 +216,19 @@ public class MainActivity extends AppCompatActivity {
                     public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
                         Log.i(TAG, "child changed");
-                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
-                        if (latestDate != null) {
-                            Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
-                            DataSnapshot latestMillis = null;
-                            while (millisIterator.hasNext()) {
-                                latestMillis = millisIterator.next();
-                            }
-                            if (latestMillis != null) {
-                                Integer latestTemperature = latestMillis.getValue(Integer.class);
-                                String latestTime = millisTimeConvert(latestMillis.getKey());
-                                mSubsLocationTextView.setText(lastLocation);
-                                mSubsTemperatureTextView.setText(latestTemperature.toString()+ "\n" + latestTime);
-                            } else {
-                                Log.i(TAG, "latestMillis is null");
-                            }
+                        Iterator<DataSnapshot> millisIterator = dataSnapshot.getChildren().iterator();
+                        DataSnapshot latestMillis = null;
+                        while (millisIterator.hasNext()) {
+                            latestMillis = millisIterator.next();
+                            Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
+                        }
+                        if (latestMillis != null) {
+                            Integer latestTemperature = latestMillis.getValue(Integer.class);
+                            String latestTime = millisTimeConvert(latestMillis.getKey());
+                            mSubsLocationTextView.setText(lastLocation);
+                            mSubsTemperatureTextView.setText(latestTemperature.toString()+ "\n" + latestTime);
                         } else {
-                            Log.i(TAG, "latestDate is null");
+                            Log.i(TAG, "latestMillis is null");
                         }
                     }
 
