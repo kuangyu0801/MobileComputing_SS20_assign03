@@ -261,7 +261,13 @@ public class MainActivity extends AppCompatActivity {
                 getNode.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
+
+                        DataSnapshot latestDate = null;
+                        Iterator<DataSnapshot> dateIterator = dataSnapshot.getChildren().iterator();
+                        while(dateIterator.hasNext()) {
+                            latestDate = dateIterator.next();
+                            Log.i(TAG, "iterating date: " + latestDate.getKey());
+                        }
                         if (latestDate != null) {
                             Log.i(TAG, "latest date: " + latestDate.getKey());
                             Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
@@ -274,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                                 temperatureSum += latestTemperature;
                             }
                             Long averageTemperature = temperatureSum / dataCount;
-                            mAverageTemperatureTextView.setText(new String(averageTemperature.toString() + " on " + latestDate.getKey()));
+                            mAverageTemperatureTextView.setText(new String(averageTemperature.toString() + "\non " + latestDate.getKey()));
                         }
                     }
                     @Override
