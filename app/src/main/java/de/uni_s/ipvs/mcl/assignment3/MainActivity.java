@@ -113,17 +113,20 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 lastLocation = mLocationEditText.getText().toString();
                 DatabaseReference getNode = mTemperatureDatabaseReference.child(lastLocation);
-
+                Log.i(TAG, "Get button clicked");
                 // read from data base only once
-                getNode.addListenerForSingleValueEvent(new ValueEventListener() {
+                getNode.limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         DataSnapshot latestDate = dataSnapshot.getChildren().iterator().next();
+                        Log.i(TAG, "Date count:" + Long.toString(dataSnapshot.getChildrenCount()));
+
                         if (latestDate != null) {
                             Iterator<DataSnapshot> millisIterator = latestDate.getChildren().iterator();
                             DataSnapshot latestMillis = null;
                             while (millisIterator.hasNext()) {
                                 latestMillis = millisIterator.next();
+                                Log.i(TAG, "iterating on Millis:" + latestMillis.getKey() );
                             }
                             if (latestMillis != null) {
                                 String latestTime = millisTimeConvert(latestMillis.getKey());
