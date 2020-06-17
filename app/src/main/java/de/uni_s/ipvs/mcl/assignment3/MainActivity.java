@@ -90,10 +90,12 @@ public class MainActivity extends AppCompatActivity {
                     mSendButton.setEnabled(true);
                     mGetButton.setEnabled(true);
                     mAverageButton.setEnabled(true);
+                    mSubscribeButton.setEnabled(true);
                 } else {
                     mSendButton.setEnabled(false);
                     mGetButton.setEnabled(false);
                     mAverageButton.setEnabled(false);
+                    mSubscribeButton.setEnabled(false);
                 }
             }
 
