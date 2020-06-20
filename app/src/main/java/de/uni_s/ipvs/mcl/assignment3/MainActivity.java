@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String lastLocation;
     private String lastDate;
-    private Boolean isExist;
+    private LocationExist locationExist;
 
 
     // Firebase instance variables
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mTemperatureDatabaseReference = mFirebaseDatabase.getReference().child("location");
-        isExist = new Boolean(false);
+        locationExist = new LocationExist(false);
         // Initialize references to views
         mSendButton = (Button) findViewById(R.id.sendButton);
         mGetButton = (Button) findViewById(R.id.getButton);
@@ -315,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkLocationExistance(String location) {
         final String lookupLocation = location;
-        isExist = false;
 
         mTemperatureDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -324,7 +323,10 @@ public class MainActivity extends AppCompatActivity {
                 while (locationIterator.hasNext()) {
                     DataSnapshot latestLocation = locationIterator.next();
                     Log.i(TAG, "iterating location: " + latestLocation.getKey());
-                    isExist  = (lookupLocation.equals(latestLocation.getKey()));
+                    Log.i(TAG, "Before set: " + Boolean.toString(locationExist.getExistence()));
+                    boolean isExist = (lookupLocation.equals(latestLocation.getKey()));
+                    locationExist.setExistence(isExist);
+                    Log.i(TAG, "After set: " + Boolean.toString(locationExist.getExistence()));
                     if (isExist) {
                         break;
                     }
@@ -336,9 +338,25 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        if (!isExist) {
+        if (!locationExist.getExistence()) {
             Toast.makeText(MainActivity.this, "This location doesn't exist in database", Toast.LENGTH_SHORT).show();
         }
-        return isExist;
+        return locationExist.getExistence();
+    }
+
+    public class LocationExist {
+        private boolean isExist;
+
+        public LocationExist(boolean initState) {
+            isExist = initState;
+        }
+
+        public boolean getExistence() {
+            return isExist;
+        }
+
+        public void  setExistence(boolean setState) {
+            isExist = setState;
+        }
     }
 }
